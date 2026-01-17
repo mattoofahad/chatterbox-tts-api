@@ -133,6 +133,7 @@ export interface AudioRecord {
   createdAt: Date;
   // duration?: number; // Duration in seconds
   duration?: number | null | undefined;
+  generationTime?: number; // Generation time in milliseconds
   settings: {
     text: string;
     exaggeration: number;

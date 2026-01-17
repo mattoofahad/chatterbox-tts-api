@@ -109,6 +109,7 @@ interface StoredAudioMetadata {
   createdAt: string;
   // duration?: number; // Duration in seconds
   duration?: number | null | undefined;
+  generationTime?: number; // Generation time in milliseconds
   settings: {
     text: string;
     exaggeration: number;
@@ -155,6 +156,7 @@ export function useAudioHistory() {
                 blob,
                 createdAt: new Date(meta.createdAt),
                 duration,
+                generationTime: meta.generationTime,
                 settings: meta.settings
               });
             }
@@ -185,6 +187,7 @@ export function useAudioHistory() {
         name: record.name,
         createdAt: record.createdAt.toISOString(),
         duration: record.duration,
+        generationTime: record.generationTime,
         settings: record.settings
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(metadata));
@@ -201,6 +204,7 @@ export function useAudioHistory() {
       voiceId?: string;
       voiceName?: string;
     },
+    generationTime?: number,
     customName?: string
   ) => {
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
@@ -224,6 +228,7 @@ export function useAudioHistory() {
         blob,
         createdAt: timestamp,
         duration: duration || undefined,
+        generationTime,
         settings
       };
 

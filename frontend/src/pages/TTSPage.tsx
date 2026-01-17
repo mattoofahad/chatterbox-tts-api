@@ -38,6 +38,7 @@ export default function TTSPage() {
   const [isClickedGenerating, setIsClickedGenerating] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
+  const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
 
   // API endpoint management
   const { apiBaseUrl, updateApiBaseUrl } = useApiEndpoint();
@@ -228,8 +229,13 @@ export default function TTSPage() {
       if (variables.session_id) {
         trackRequest(variables.session_id);
       }
+      // Track generation start time
+      setGenerationStartTime(Date.now());
     },
     onSuccess: async (audioBlob) => {
+      // Calculate generation time
+      const generationTime = generationStartTime ? Date.now() - generationStartTime : undefined;
+
       // Clean up previous audio URL
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
@@ -250,15 +256,21 @@ export default function TTSPage() {
             temperature,
             voiceId: selectedVoice?.id,
             voiceName: selectedVoice?.name || defaultVoice || "Default"
-          }
+          },
+          generationTime
         );
       } catch (error) {
         console.error('Failed to save audio record:', error);
       }
+
+      // Reset generation start time
+      setGenerationStartTime(null);
     },
     onError: (error) => {
       console.error('TTS generation failed:', error);
       alert('Failed to generate speech. Please try again.');
+      // Reset generation start time on error
+      setGenerationStartTime(null);
     }
   });
 
@@ -333,6 +345,8 @@ export default function TTSPage() {
     if (isStreamingEnabled) {
       // Use streaming
       try {
+        // Track generation start time for streaming
+        const streamStartTime = Date.now();
         await startStreaming(requestData);
 
         // If streaming completes successfully and we have a final audio URL, save to history
@@ -340,6 +354,7 @@ export default function TTSPage() {
           try {
             const response = await fetch(streamingAudioUrl);
             const audioBlob = await response.blob();
+            const generationTime = Date.now() - streamStartTime;
 
             await addAudioRecord(
               audioBlob,
@@ -350,7 +365,8 @@ export default function TTSPage() {
                 temperature,
                 voiceId: selectedVoice?.id,
                 voiceName: selectedVoice?.name || defaultVoice || "Default"
-              }
+              },
+              generationTime
             );
           } catch (error) {
             console.error('Failed to save streaming audio to history:', error);

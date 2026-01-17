@@ -153,7 +153,7 @@ export default function AudioHistory({
     if (record.duration && record.duration > 0) {
       return formatDuration(record.duration);
     }
-    
+
     // Fallback to word-based estimation for records without duration
     const wordCount = record.settings.text.split(' ').length;
     const estimatedSeconds = (wordCount / 150) * 60;
@@ -161,6 +161,21 @@ export default function AudioHistory({
       return `~${Math.ceil(estimatedSeconds)}s`;
     }
     return `~${Math.ceil(estimatedSeconds / 60)}m`;
+  };
+
+  const getGenerationTimeDisplay = (generationTime?: number) => {
+    if (!generationTime) return null;
+
+    const seconds = generationTime / 1000;
+    if (seconds < 1) {
+      return `${Math.round(generationTime)}ms`;
+    } else if (seconds < 60) {
+      return `${seconds.toFixed(1)}s`;
+    } else {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.round(seconds % 60);
+      return `${minutes}m ${remainingSeconds}s`;
+    }
   };
 
   return (
@@ -292,6 +307,12 @@ export default function AudioHistory({
                     <span>{record.createdAt.toLocaleTimeString()}</span>
                     <span>•</span>
                     <span>{getDurationDisplay(record)}</span>
+                    {record.generationTime && (
+                      <>
+                        <span>•</span>
+                        <span title="Generation time">Gen: {getGenerationTimeDisplay(record.generationTime)}</span>
+                      </>
+                    )}
                     {record.settings.voiceName && (
                       <>
                         <span>•</span>
