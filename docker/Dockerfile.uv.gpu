@@ -42,11 +42,23 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Install PyTorch with CUDA support using uv
 RUN uv pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
 
-# Install base dependencies first
-RUN uv pip install setuptools fastapi uvicorn[standard] python-dotenv python-multipart requests psutil pydub sse-starlette
+# Install base dependencies first (pin setuptools to avoid pkg_resources deprecation)
+RUN uv pip install "setuptools<81" fastapi uvicorn[standard] python-dotenv python-multipart requests psutil pydub sse-starlette peft
 
-# Install chatterbox-tts — with the breaking fix (pkuseg package exclusion) 
-RUN uv pip install git+https://github.com/travisvn/chatterbox-multilingual.git@exp
+# Pre-download and extract spacy-pkuseg model to avoid runtime download warnings
+RUN mkdir -p /root/.pkuseg && \
+    wget -q https://github.com/explosion/spacy-pkuseg/releases/download/v0.0.26/spacy_ontonotes.zip \
+    -O /root/.pkuseg/spacy_ontonotes.zip && \
+    apt-get update && apt-get install -y unzip && \
+    unzip -q /root/.pkuseg/spacy_ontonotes.zip -d /root/.pkuseg/ && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install chatterbox-tts — with the breaking fix (pkuseg package exclusion)
+# RUN uv pip install git+https://github.com/resemble-ai/chatterbox.git@master
+# RUN uv pip install git+https://github.com/travisvn/chatterbox-multilingual.git@exp
+# RUN uv pip install git+https://github.com/rsxdalv/chatterbox.git@faster
+RUN echo 
+RUN uv pip install git+https://github.com/mattoofahad/chatterbox.git@chatterbox-faster
 
 # Copy application code
 COPY app/ ./app/

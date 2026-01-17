@@ -38,7 +38,7 @@ services:
 
       # HuggingFace cache settings
       - HF_HOME=/root/.cache/huggingface
-      - TRANSFORMERS_CACHE=/root/.cache/huggingface/hub
+      # - TRANSFORMERS_CACHE=/root/.cache/huggingface/hub
       - HF_HUB_CACHE=/root/.cache/huggingface/hub
 
       # NVIDIA/CUDA settings
