@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Main API Service (always included)
   chatterbox-tts:
@@ -18,6 +16,7 @@ services:
       - EXAGGERATION=${EXAGGERATION:-0.5}
       - CFG_WEIGHT=${CFG_WEIGHT:-0.5}
       - TEMPERATURE=${TEMPERATURE:-0.8}
+      - USE_MULTILINGUAL_MODEL=true
 
       # Text Processing
       - MAX_CHUNK_LENGTH=${MAX_CHUNK_LENGTH:-280}
@@ -37,6 +36,11 @@ services:
       - MODEL_CACHE_DIR=${MODEL_CACHE_DIR:-/cache}
       - VOICE_LIBRARY_DIR=${VOICE_LIBRARY_DIR:-/voices}
 
+      # HuggingFace cache settings
+      - HF_HOME=/root/.cache/huggingface
+      - TRANSFORMERS_CACHE=/root/.cache/huggingface/hub
+      - HF_HUB_CACHE=/root/.cache/huggingface/hub
+
       # NVIDIA/CUDA settings
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
@@ -44,8 +48,11 @@ services:
       # Mount voice sample file (optional)
       - ${VOICE_SAMPLE_HOST_PATH:-../voice-sample.mp3}:/app/voice-sample.mp3:ro
 
-      # Mount model cache for persistence
-      - chatterbox-models:${MODEL_CACHE_DIR:-/cache}
+      # Mount local HuggingFace model cache (contains pre-downloaded models)
+      - ../hub:/root/.cache/huggingface/hub
+
+      # Mount chatterbox-models directory (for additional model storage)
+      - ../chatterbox-models:${MODEL_CACHE_DIR:-/cache}
 
       # Mount voice library for persistence
       - chatterbox-voices:${VOICE_LIBRARY_DIR:-/voices}
@@ -55,7 +62,6 @@ services:
 
       # Optional: Mount custom voice samples directory (legacy)
       - ${VOICE_SAMPLES_DIR:-../voice-samples}:/app/voice-samples:ro
-
     # GPU support (enabled by default for this compose file)
     deploy:
       resources:
