@@ -65,7 +65,12 @@ services:
     # GPU support (enabled by default for this compose file)
     deploy:
       resources:
+        limits:
+          cpus: '8.0'       # Maximum CPU cores
+          memory: 16G        # Maximum RAM
         reservations:
+          cpus: '1.0'       # Reserved CPU cores
+          memory: 2G        # Reserved RAM
           devices:
             - driver: nvidia
               count: 1

@@ -50,14 +50,13 @@ RUN mkdir -p /root/.pkuseg && \
     wget -q https://github.com/explosion/spacy-pkuseg/releases/download/v0.0.26/spacy_ontonotes.zip \
     -O /root/.pkuseg/spacy_ontonotes.zip && \
     apt-get update && apt-get install -y unzip && \
-    unzip -q /root/.pkuseg/spacy_ontonotes.zip -d /root/.pkuseg/ && \
+    unzip -q /root/.pkuseg/spacy_ontonotes.zip -d /root/.pkuseg/spacy_ontonotes/ && \
     rm -rf /var/lib/apt/lists/*
 
 # Install chatterbox-tts — with the breaking fix (pkuseg package exclusion)
 # RUN uv pip install git+https://github.com/resemble-ai/chatterbox.git@master
 # RUN uv pip install git+https://github.com/travisvn/chatterbox-multilingual.git@exp
 # RUN uv pip install git+https://github.com/rsxdalv/chatterbox.git@faster
-RUN echo 
 RUN uv pip install git+https://github.com/mattoofahad/chatterbox.git@chatterbox-faster
 
 # Copy application code

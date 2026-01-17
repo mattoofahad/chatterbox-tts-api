@@ -9,7 +9,6 @@ requires-python = ">=3.11, <3.12"
 dependencies = [
   # "chatterbox-tts @ git+https://github.com/resemble-ai/chatterbox.git",
   "chatterbox-tts @ git+https://github.com/travisvn/chatterbox-multilingual.git@exp",
-  "resemble-perth",
   "torch>=2.0.0,<2.7.0",
   "torchaudio>=2.0.0,<2.7.0",
   "fastapi>=0.104.0",

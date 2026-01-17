@@ -104,7 +104,34 @@ async def initialize_model():
             _is_multilingual = False
             _supported_languages = {"en": "English"}  # Standard model only supports English
             print(f"✓ Standard model initialized (English only)")
-        
+
+        # Perform warmup generation to eliminate cold start
+        _initialization_progress = "Running warmup to eliminate cold start..."
+        print(f"🔥 Running warmup generation to eliminate cold start...")
+        try:
+            import torch
+            with torch.no_grad():
+                print(Config.VOICE_SAMPLE_PATH)
+                warmup_result = await loop.run_in_executor(
+                    None,
+                    lambda: _model.generate(
+                        text="Warmup generation to eliminate cold start.",
+                        audio_prompt_path=Config.VOICE_SAMPLE_PATH,
+                        **({'language_id': 'en'} if _is_multilingual else {})
+                    )
+                )
+                # Clean up warmup result
+                if hasattr(warmup_result, 'cpu'):
+                    del warmup_result
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                import gc
+                gc.collect()
+            print(f"✓ Warmup completed - cold start eliminated!")
+        except Exception as warmup_error:
+            print(f"⚠️ Warmup failed: {warmup_error}")
+            print(f"   First request may be slower than usual")
+
         _initialization_state = InitializationState.READY.value
         _initialization_progress = "Model ready"
         _initialization_error = None
